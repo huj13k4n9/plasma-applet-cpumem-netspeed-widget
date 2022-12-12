@@ -1,6 +1,6 @@
-# plasma-applet-netspeed-widget
+# plasma-applet-cpumem-netspeed-widget
 
-Plasma 5 widget that displays the currently used network bandwidth.
+Plasma 5 widget that displays the currently used network bandwidth, CPU and memory usage.
 
 **Important: Starting with Plasma 5.22 you may need to manually install the package `ksysguard`.**
 
