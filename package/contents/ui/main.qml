@@ -68,7 +68,7 @@ Item {
             var matchNetwork = source.match(/^network\/interfaces\/(\w+)\/(receiver|transmitter)\/data(Total)?$/)
 
             var matchCPU = source.match(/^cpu\/system\/TotalLoad$/)
-            var matchMem = source.match(/^mem\/physical\/(used|total)$/)
+            var matchMem = source.match(/^mem\/physical\/(application|total)$/)
 
             if (matchNetwork) {
                 connectSource(source)
@@ -84,7 +84,7 @@ Item {
 
             if (matchMem) {
                 connectSource(source)
-                if (matchMem[1] === 'used') {
+                if (matchMem[1] === 'application') {
                     console.log('MemUsed data initiated')
                 } else if (matchMem[1] === 'total') {
                     console.log('MemTotal data initiated')
@@ -96,7 +96,7 @@ Item {
             var matchNetwork = source.match(/^network\/interfaces\/(\w+)\/(receiver|transmitter)\/data(Total)?$/)
 
             var matchCPU = source.match(/^cpu\/system\/TotalLoad$/)
-            var matchMem = source.match(/^mem\/physical\/(used|total)$/)
+            var matchMem = source.match(/^mem\/physical\/(application|total)$/)
 
             if (matchNetwork) {
                 disconnectSource(source);
@@ -118,7 +118,7 @@ Item {
 
             var matchNetwork = sourceName.match(/^network\/interfaces\/(\w+)\/(receiver|transmitter)\/data(Total)?$/)
             var matchCPU = sourceName.match(/^cpu\/system\/TotalLoad$/)
-            var matchMem = sourceName.match(/^mem\/physical\/(used|total)$/)
+            var matchMem = sourceName.match(/^mem\/physical\/(application|total)$/)
 
             if (matchNetwork) {
                 if (speedData[matchNetwork[1]] === undefined) {
@@ -155,7 +155,7 @@ Item {
             } else if (matchCPU) {
                 cpuLoad = parseFloat(data.value)
             } else if (matchMem) {
-                if (matchMem[1] === 'used') {
+                if (matchMem[1] === 'application') {
                     memUsed = parseFloat(data.value)
                 } else if (matchMem[1] === 'total') {
                     memTotal = parseFloat(data.value)

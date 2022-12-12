@@ -300,7 +300,7 @@ Item {
 
         verticalAlignment: Text.AlignVCenter
         anchors.left: showSeparately ? (singleLine ? bottomUnitText.right : topUnitText.right) : topUnitText.right
-        anchors.leftMargin: (singleLine ? 4 : 2) * font.pixelSize * marginFactor
+        anchors.leftMargin: (singleLine ? 4 : 4) * font.pixelSize * marginFactor
         y: 0
         font.pixelSize: height * fontHeightRatio * fontSizeScale
         renderType: Text.NativeRendering
@@ -318,7 +318,7 @@ Item {
 
         verticalAlignment: Text.AlignVCenter
         anchors.left: (!showSeparately || singleLine) ? cpuValue.right : bottomUnitText.right
-        anchors.leftMargin: (singleLine ? 6 : 2) * font.pixelSize * marginFactor
+        anchors.leftMargin: (singleLine ? 6 : 4) * font.pixelSize * marginFactor
         y: singleLine ? 0 : parent.height / 2
         font.pixelSize: height * fontHeightRatio * fontSizeScale
         renderType: Text.NativeRendering
