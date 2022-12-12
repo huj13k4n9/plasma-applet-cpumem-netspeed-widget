@@ -20,6 +20,7 @@ import org.kde.plasma.core 2.0 as PlasmaCore
 
 Item {
     property bool showSeparately: plasmoid.configuration.showSeparately
+    property bool showCPUAndMem: plasmoid.configuration.showCPUAndMem
     property string speedLayout: plasmoid.configuration.speedLayout
     property bool swapDownUp: plasmoid.configuration.swapDownUp
     property bool showIcons: plasmoid.configuration.showIcons
@@ -40,6 +41,9 @@ Item {
     property var interfacesWhitelist: plasmoid.configuration.interfacesWhitelist
 
     property var speedData: []
+    property var cpuLoad: .0
+    property var memTotal: 1
+    property var memUsed: 0
 
     Plasmoid.preferredRepresentation: Plasmoid.compactRepresentation
     Plasmoid.compactRepresentation: CompactRepresentation {}
@@ -61,27 +65,49 @@ Item {
                 return;
             }
 
-            var match = source.match(/^network\/interfaces\/(\w+)\/(receiver|transmitter)\/data(Total)?$/)
+            var matchNetwork = source.match(/^network\/interfaces\/(\w+)\/(receiver|transmitter)\/data(Total)?$/)
 
-            if (match) {
+            var matchCPU = source.match(/^cpu\/system\/TotalLoad$/)
+            var matchMem = source.match(/^mem\/physical\/(used|total)$/)
+
+            if (matchNetwork) {
                 connectSource(source)
-
-                if (speedData[match[1]] === undefined) {
-                    console.log('Network interface added: ' + match[1])
+                if (speedData[matchNetwork[1]] === undefined) {
+                    console.log('Network interface added: ' + matchNetwork[1])
                 }
+            }
+
+            if (matchCPU) {
+                connectSource(source)
+                console.log('CPU data initiated')
+            }
+
+            if (matchMem) {
+                connectSource(source)
+                if (matchMem[1] === 'used') {
+                    console.log('MemUsed data initiated')
+                } else if (matchMem[1] === 'total') {
+                    console.log('MemTotal data initiated')
+                } 
             }
         }
 
         onSourceRemoved: {
-            var match = source.match(/^network\/interfaces\/(\w+)\/(receiver|transmitter)\/data(Total)?$/)
+            var matchNetwork = source.match(/^network\/interfaces\/(\w+)\/(receiver|transmitter)\/data(Total)?$/)
 
-            if (match) {
+            var matchCPU = source.match(/^cpu\/system\/TotalLoad$/)
+            var matchMem = source.match(/^mem\/physical\/(used|total)$/)
+
+            if (matchNetwork) {
                 disconnectSource(source);
-
-                if (speedData[match[1]] !== undefined) {
-                    delete speedData[match[1]]
+                if (speedData[matchNetwork[1]] !== undefined) {
+                    delete speedData[matchNetwork[1]]
                     console.log('Network interface removed: ' + source[1])
                 }
+            }
+
+            if (matchCPU || matchMem) {
+                disconnectSource(source)
             }
         }
 
@@ -90,38 +116,50 @@ Item {
                 return
             }
 
-            var match = sourceName.match(/^network\/interfaces\/(\w+)\/(receiver|transmitter)\/data(Total)?$/)
+            var matchNetwork = sourceName.match(/^network\/interfaces\/(\w+)\/(receiver|transmitter)\/data(Total)?$/)
+            var matchCPU = sourceName.match(/^cpu\/system\/TotalLoad$/)
+            var matchMem = sourceName.match(/^mem\/physical\/(used|total)$/)
 
-            if (speedData[match[1]] === undefined) {
-                speedData[match[1]] = {down: 0, up: 0, downTotal: 0, upTotal: 0}
-            }
+            if (matchNetwork) {
+                if (speedData[matchNetwork[1]] === undefined) {
+                    speedData[matchNetwork[1]] = {down: 0, up: 0, downTotal: 0, upTotal: 0}
+                }
 
-            var d = speedData
-            var changed = false
-            var value = parseFloat(data.value)
+                var d = speedData
+                var changed = false
+                var value = parseFloat(data.value)
 
-            if (match[3] === 'Total') {
-                if (match[2] === 'receiver'    && d[match[1]].downTotal != value) {
-                    d[match[1]].downTotal = value
-                    changed = true
+                if (matchNetwork[3] === 'Total') {
+                    if (matchNetwork[2] === 'receiver'    && d[matchNetwork[1]].downTotal != value) {
+                        d[matchNetwork[1]].downTotal = value
+                        changed = true
+                    }
+                    if (matchNetwork[2] === 'transmitter' && d[matchNetwork[1]].upTotal != value) {
+                        d[matchNetwork[1]].upTotal = value
+                        changed = true
+                    }
+                } else {
+                    if (matchNetwork[2] === 'receiver'    && d[matchNetwork[1]].down != value) {
+                        d[matchNetwork[1]].down = value
+                        changed = true
+                    }
+                    if (matchNetwork[2] === 'transmitter' && d[matchNetwork[1]].up != value) {
+                        d[matchNetwork[1]].up = value
+                        changed = true
+                    }
                 }
-                if (match[2] === 'transmitter' && d[match[1]].upTotal != value) {
-                    d[match[1]].upTotal = value
-                    changed = true
-                }
-            } else {
-                if (match[2] === 'receiver'    && d[match[1]].down != value) {
-                    d[match[1]].down = value
-                    changed = true
-                }
-                if (match[2] === 'transmitter' && d[match[1]].up != value) {
-                    d[match[1]].up = value
-                    changed = true
-                }
-            }
 
-            if (changed) {
-                speedData = d
+                if (changed) {
+                    speedData = d
+                }
+            } else if (matchCPU) {
+                cpuLoad = parseFloat(data.value)
+            } else if (matchMem) {
+                if (matchMem[1] === 'used') {
+                    memUsed = parseFloat(data.value)
+                } else if (matchMem[1] === 'total') {
+                    memTotal = parseFloat(data.value)
+                } 
             }
         }
     }

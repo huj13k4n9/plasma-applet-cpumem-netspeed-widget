@@ -88,9 +88,9 @@ Item {
         if (plasmoid.formFactor === PlasmaCore.Types.Vertical) {
             return 0
         } else if (plasmoid.formFactor === PlasmaCore.Types.Horizontal) {
-            return Math.ceil(height * aspectRatio)
+            return Math.ceil(height * aspectRatio) * (showCPUAndMem ? 2 : 1)
         } else {
-            return Math.ceil(height * aspectRatio)
+            return Math.ceil(height * aspectRatio) * (showCPUAndMem ? 2 : 1)
         }
     }
     Layout.minimumHeight: {
@@ -143,6 +143,12 @@ Item {
     TextMetrics {
         id: speedTextMetrics
         text: '1000.0'
+        font.pixelSize: 64
+    }
+
+    TextMetrics {
+        id: percentTextMetrics
+        text: '100.0%'
         font.pixelSize: 64
     }
 
@@ -284,6 +290,80 @@ Item {
         text: speedUnit(swapDownUp ? downSpeed : upSpeed)
         color: theme.textColor
         visible: showSeparately && showUnits
+    }
+
+    Text {
+        id: cpuText
+
+        height: singleLine ? parent.height : parent.height / 2
+        width: unitTextMetrics.width / unitTextMetrics.height * height * fontSizeScale
+
+        verticalAlignment: Text.AlignVCenter
+        anchors.left: showSeparately ? (singleLine ? bottomUnitText.right : topUnitText.right) : topUnitText.right
+        anchors.leftMargin: (singleLine ? 4 : 2) * font.pixelSize * marginFactor
+        y: 0
+        font.pixelSize: height * fontHeightRatio * fontSizeScale
+        renderType: Text.NativeRendering
+
+        text: "CPU"
+        color: theme.textColor
+        visible: showCPUAndMem
+    }
+
+    Text {
+        id: memText
+
+        height: singleLine ? parent.height : parent.height / 2
+        width: unitTextMetrics.width / unitTextMetrics.height * height * fontSizeScale
+
+        verticalAlignment: Text.AlignVCenter
+        anchors.left: (!showSeparately || singleLine) ? cpuValue.right : bottomUnitText.right
+        anchors.leftMargin: (singleLine ? 6 : 2) * font.pixelSize * marginFactor
+        y: singleLine ? 0 : parent.height / 2
+        font.pixelSize: height * fontHeightRatio * fontSizeScale
+        renderType: Text.NativeRendering
+
+        text: "Mem"
+        color: theme.textColor
+        visible: showCPUAndMem
+    }
+
+    Text {
+        id: cpuValue
+
+        height: singleLine ? parent.height : parent.height / 2
+        width: percentTextMetrics.width / percentTextMetrics.height * height * fontSizeScale
+
+        horizontalAlignment: Text.AlignRight
+        verticalAlignment: Text.AlignVCenter
+        anchors.left: cpuText.right
+        anchors.leftMargin: font.pixelSize * marginFactor
+        y: 0
+        font.pixelSize: height * fontHeightRatio * fontSizeScale
+        renderType: Text.NativeRendering
+
+        text: cpuLoad.toFixed(1) + (showUnits ? "%" : "")
+        color: theme.textColor
+        visible: showCPUAndMem
+    }
+
+    Text {
+        id: memValue
+
+        height: singleLine ? parent.height : parent.height / 2
+        width: percentTextMetrics.width / percentTextMetrics.height * height * fontSizeScale
+
+        horizontalAlignment: Text.AlignRight
+        verticalAlignment: Text.AlignVCenter
+        anchors.left: memText.right
+        anchors.leftMargin: font.pixelSize * marginFactor
+        y: singleLine ? 0 : parent.height / 2
+        font.pixelSize: height * fontHeightRatio * fontSizeScale
+        renderType: Text.NativeRendering
+
+        text: ((memUsed / memTotal) * 100).toFixed(1) + (showUnits ? "%" : "")
+        color: theme.textColor
+        visible: showCPUAndMem
     }
 
     MouseArea {

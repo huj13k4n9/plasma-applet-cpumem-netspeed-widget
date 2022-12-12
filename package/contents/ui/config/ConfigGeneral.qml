@@ -20,6 +20,7 @@ import QtQuick.Layouts 1.1
 
 Item {
     property alias cfg_showSeparately: showSeparately.checked
+    property alias cfg_showCPUAndMem: showCPUAndMem.checked
     property string cfg_speedLayout: 'auto'
     property bool cfg_swapDownUp: false
     property alias cfg_showIcons: showIcons.checked
@@ -128,8 +129,14 @@ Item {
         }
 
         CheckBox {
+            id: showCPUAndMem
+            text: i18n('Show CPU and memory usage')
+            Layout.columnSpan: 2
+        }
+
+        CheckBox {
             id: showUnits
-            text: i18n('Show speed units')
+            text: i18n('Show units')
             Layout.columnSpan: 2
         }
 
