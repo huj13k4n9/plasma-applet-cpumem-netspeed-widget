@@ -51,3 +51,7 @@ Dependencies:
 * cmake
 * extra-cmake-modules
 * plasma-framework-devel
+
+## Known Bugs
+
+- Display issue when enabling config "Use shortened speed units"
